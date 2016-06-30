@@ -1,15 +1,10 @@
-var express = require('express');
 var http = require('http');
 var socketIo = require('socket.io');
-var app = express();
 
 // facciamo partire il server sulla porta 8080
-var server = http.createServer(app);
+var server = http.createServer();
 var io = socketIo.listen(server);
 server.listen(8080);
-
-// TODO: rimuovimi
-//app.use(express.static(__dirname + '/public'));
 
 console.log("Server running on 127.0.0.1:8080");
 var drawings = [];
@@ -37,7 +32,7 @@ io.on('connection', function (socket) {
             };
 
             console.log("Nuovo utente connesso: " + data.username);
-            
+
             socket.emit('login_success', users[data.username]);
 
             //invio la lista degli utenti
@@ -46,7 +41,7 @@ io.on('connection', function (socket) {
             //Quando un utente si collega per la prima volta invio tutti i disegni
             for (var key in drawings) {
                 var drawing = drawings[key];
-            
+
                if(drawing.is_guessed)
                     continue;
 
@@ -61,10 +56,10 @@ io.on('connection', function (socket) {
             socket.emit('username_already_taken');
 
     });
- 
+
     //L'utente ha disegnato una linea, memorizziamola e mandiamola a tutti
     socket.on('draw_line', function (data) {
-        
+
         console.log("draw_line data: ", data);
         //memorizziamola
         var d = drawings[data.uuid];
@@ -104,9 +99,9 @@ io.on('connection', function (socket) {
         //controlli di sicurezza ;)
         if (drawing.is_finished &&
             drawing.guessed_by == null &&
-            drawing.word.toUpperCase() == data.word.toUpperCase() && 
+            drawing.word.toUpperCase() == data.word.toUpperCase() &&
             drawing.author != data.username ) {
-            
+
             drawing.guessed_by = data.username;
 
             // assegno 1 punto per ogni lettera al giocatore che indovina,
